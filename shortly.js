@@ -3,6 +3,7 @@ var util = require('./lib/utility');
 var partials = require('express-partials');
 var bodyParser = require('body-parser');
 var session = require('express-session');
+var bcrypt = require('bcrypt-nodejs');
 
 
 var db = require('./app/config');
@@ -26,12 +27,41 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
 
 
+
+authenicateUser = function(req, res, next){
+  console.log("Authentication in progress @ 108");
+  //check if user exists in the table users
+  var tempUserName = req.body.username; //from submission
+  new User({username: tempUserName}).fetch().then(function(found){
+    console.log("FOUND from 34: ", found);
+    if(!found){
+      console.log("Username not found @ 36")
+      res.redirect('/signup');
+    }else{
+      //trying to get pwd from client
+      console.log("Unhashed password attempt: ", req.body.password);
+
+      //the hang-up is calling the hashPassword function on this client password
+
+      // var tempClientPwd = tempUserName.hashPassword(req.body.password); //password from client website, then hashed
+      
+      var tempTableHashPwd = found.attributes.password;   //password from existing hashed table
+      //console.log("Table-hashed pwd@42: ", tempTableHashPwd, "Client-hashed: ", tempClientPwd);
+
+      bcrypt.compareSync(req.body.password, tempTableHashPwd) ? next() : res.redirect('/login');
+
+      }
+  
+  })
+};
+
+
+
+
+
 app.get('/', util.checkSignIn,
 function(req, res) {
 
-  //check if user signed in
-    //if user not signed in, redirect to signin page
-    //else
     res.render('index');
 });
 
@@ -40,7 +70,7 @@ function(req, res) {
   res.render('login');
 });
 
-app.post('/login', //TODO: createSession middleware authentication!!!
+app.post('/login',  authenicateUser, //TODO: createSession middleware authentication!!! in progress
   function(req, res) {
     req.session.loggedIn = true;
     // console.log('session ', req.session);
@@ -52,7 +82,7 @@ function(req, res) {
   res.render('signup');
 });
 
-app.post('/signup', util.createUser,//TODO create user !!!
+app.post('/signup', util.createUser,
   function(req, res) {
     
     req.session.loggedIn = true;
@@ -60,10 +90,6 @@ app.post('/signup', util.createUser,//TODO create user !!!
     res.redirect('/');
 });
 
-// app.get('/create', util.checkSignIn,
-// function(req, res) {
-//   res.render('index');
-// });
 
 app.get('/links', util.checkSignIn,
 function(req, res) {
@@ -111,13 +137,23 @@ function(req, res) {
 // Write your authentication routes here
 /************************************************************/
 
-authenicateUser = function(req, res, next){
-  //check if user exists in the table
-  //if Not
-    //redirect to signup
-  //if user exists
+// exports.authenicateUser = function(req, res, next){
+//   console.log("Authentication in progress @ 108");
+//   //check if user exists in the table users
+//   new User({username: req.body.username}).fetch().then(function(found){
+//     console.log("FOUND from 117: ", found);
+//     if(!found){
+//       res.redirect('/signup');
+//     }else{
+//     //get their hashed password
+//     //get table hashed password
+//     var tempTableHash = db.get('password');
 
-};
+//     //check their hashed password = table hashed password
+//     }
+//     next();
+//   })
+// };
 
 
 
