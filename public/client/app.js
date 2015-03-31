@@ -26,6 +26,7 @@ window.Shortly = Backbone.View.extend({
     this.router.navigate('/', { trigger: true });
   },
 
+
   renderCreateView: function(e){
     e && e.preventDefault();
     this.router.navigate('/create', { trigger: true });

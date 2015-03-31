@@ -77,6 +77,11 @@ app.post('/login',  authenicateUser, //TODO: createSession middleware authentica
     res.redirect('/');
 });
 
+app.get('/logout', util.logOut, 
+function(req, res) {
+  res.render('login');
+});
+
 app.get('/signup', 
 function(req, res) {
   res.render('signup');
