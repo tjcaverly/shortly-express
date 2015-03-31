@@ -52,7 +52,7 @@ function(req, res) {
   res.render('signup');
 });
 
-app.post('/signup', //TODO create user !!!
+app.post('/signup', util.createUser,//TODO create user !!!
   function(req, res) {
     
     req.session.loggedIn = true;
@@ -60,10 +60,10 @@ app.post('/signup', //TODO create user !!!
     res.redirect('/');
 });
 
-app.get('/create', util.checkSignIn,
-function(req, res) {
-  res.render('index');
-});
+// app.get('/create', util.checkSignIn,
+// function(req, res) {
+//   res.render('index');
+// });
 
 app.get('/links', util.checkSignIn,
 function(req, res) {
