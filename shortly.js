@@ -29,26 +29,30 @@ app.use(express.static(__dirname + '/public'));
 
 
 authenicateUser = function(req, res, next){
-  console.log("Authentication in progress @ 108");
+ // console.log("Authentication in progress @ 32");
   //check if user exists in the table users
   var tempUserName = req.body.username; //from submission
-  new User({username: tempUserName}).fetch().then(function(found){
-    console.log("FOUND from 34: ", found);
+  new User({username: tempUserName}).fetch().then( function(found){
+   // console.log("FOUND from 36: ", found);
     if(!found){
-      console.log("Username not found @ 36")
-      res.redirect('/signup');
+     // console.log("Username not found @ 38")
+      res.redirect('/login'); //should be SIGNUP
     }else{
       //trying to get pwd from client
-      console.log("Unhashed password attempt: ", req.body.password);
-
+      // console.log("Req.body :", req.body);
+      // console.log("Unhashed password attempt: ", req.body.password);
+      // console.log("Hashed password attempt: ", bcrypt.hashSync(req.body.password));
+      
       //the hang-up is calling the hashPassword function on this client password
 
       // var tempClientPwd = tempUserName.hashPassword(req.body.password); //password from client website, then hashed
-      
-      var tempTableHashPwd = found.attributes.password;   //password from existing hashed table
+      found.comparePassword(req.body.password, function(isMatch){
+        isMatch ? next() : res.redirect('/login');
+      });
+      // var tempTableHashPwd = found.get('password');   //passwo rd from existing hashed table
       //console.log("Table-hashed pwd@42: ", tempTableHashPwd, "Client-hashed: ", tempClientPwd);
 
-      bcrypt.compareSync(req.body.password, tempTableHashPwd) ? next() : res.redirect('/login');
+      // bcrypt.compareSync(req.body.password, tempTableHashPwd) ? next() : res.redirect('/login');
 
       }
   
@@ -109,7 +113,7 @@ function(req, res) {
   var uri = req.body.url;
 
   if (!util.isValidUrl(uri)) {
-    console.log('Not a valid url: ', uri);
+   // console.log('Not a valid url: ', uri);
     return res.send(404);
   }
 
